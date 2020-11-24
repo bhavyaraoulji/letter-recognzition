@@ -100,3 +100,41 @@ plt.show()
 
 print(confusion_matrix(y_test, y_pred))
 print(classification_report(y_test, y_pred))
+# create a KFold object with 5 splits 
+folds = KFold(n_splits = 5, shuffle = True, random_state = 42)
+
+# specify range of hyperparameters
+# Set the parameters by cross-validation
+hyper_params = [ {'gamma': [1e-2, 1e-3, 1e-4],
+                     'C': [1, 10, 100, 1000]}]
+model = SVC(kernel = 'rbf')
+
+# set up GridSearchCV()
+model_cv = GridSearchCV(estimator = model, 
+                        param_grid = hyper_params, 
+                        scoring= 'accuracy', 
+                        cv = folds, 
+                        verbose = 1,
+                        return_train_score=True)      
+
+# fit the model
+model_cv.fit(X_train, y_train)  
+# print optimal accuracy score and hyperparameters for building final model
+
+best_score = model_cv.best_score_
+best_hyperparams = model_cv.best_params_
+
+print("The best test score is {0} using these hyperparameters {1}".format(best_score, best_hyperparams))
+# Building and Evaluating a final model
+# model with optimal hyperparameters
+
+# model
+model = SVC(C=10, gamma=0.01, kernel="rbf")
+
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+# metrics
+print("accuracy:" , metrics.accuracy_score(y_test, y_pred), "\n")
+print(metrics.confusion_matrix(y_test, y_pred), "\n")
+
